@@ -8,6 +8,8 @@
         :root { 
             --unam-azul: #003b5c; 
             --unam-oro: #fdbb30; 
+            --hoja-amarilla: #fef3c7; /* Color de los encabezados en Sheets */
+            --texto-rojo: #b30000;    /* El rojo de tus libros en la imagen */
         }
         
         body { 
@@ -18,10 +20,9 @@
             overflow-x: hidden;
         }
 
-        /* BANNER EXTRA DELGADO (MICRO-BANNER) */
         .banner-contenedor {
             width: 100%;
-            height: 45px; /* <--- Altura mínima para que no robe espacio visual */
+            height: 45px;
             margin: 0;
             padding: 0;
             overflow: hidden;
@@ -33,9 +34,9 @@
             width: 100%;
             height: 100%; 
             object-fit: cover; 
-            object-position: center 20%; /* Enfoca la parte superior del mural */
+            object-position: center 20%;
             display: block;
-            opacity: 0.7; /* Lo hace más suave y elegante */
+            opacity: 0.7;
         }
 
         .header { 
@@ -51,7 +52,7 @@
         }
 
         .container { 
-            max-width: 1000px; 
+            max-width: 1100px; 
             margin: 20px auto; 
             background: white; 
             padding: 20px; 
@@ -71,7 +72,7 @@
         input { 
             flex-grow: 1; 
             padding: 12px; 
-            border: 1px solid var(--unam-azul); 
+            border: 2px solid var(--unam-azul); 
             font-size: 16px; 
         }
         
@@ -96,15 +97,58 @@
             font-size: 14px;
         }
         
-        table { width: 100%; border-collapse: collapse; background: #f9fafb; display: none; margin-top: 10px; }
-        th { background: #fef3c7; border: 1px solid #999; padding: 10px; font-size: 12px; color: #333; text-transform: uppercase; }
-        td { border: 1px solid #ccc; padding: 8px; text-align: center; color: #444; font-size: 13px; }
-        tr:nth-child(even) { background: #f3f4f6; }
+        /* --- ESTILOS DE LA TABLA "TIPO GOOGLE SHEETS" --- */
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            background: white; 
+            display: none; 
+            margin-top: 10px;
+            border: 1px solid #ccc;
+        }
+
+        th { 
+            background: var(--hoja-amarilla); 
+            border: 1px solid #999; 
+            padding: 12px; 
+            font-size: 13px; 
+            color: #000; 
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        td { 
+            border: 1px solid #ccc; 
+            padding: 10px; 
+            text-align: center; 
+            color: #333; 
+            font-size: 14px; 
+        }
+
+        /* Columna de TÍTULO: Roja y Negrita como en imagen.png */
+        td:nth-child(2) {
+            color: var(--texto-rojo);
+            font-weight: bold;
+            text-align: left; /* Los títulos suelen leerse mejor alineados a la izquierda */
+        }
+
+        /* Columna de AUTOR: También roja como en tu captura */
+        td:nth-child(3) {
+            color: var(--texto-rojo);
+        }
+
+        /* Estilo para los números en rojo */
+        td:nth-child(5), td:nth-child(6) {
+            color: var(--texto-rojo);
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) { background: #f9f9f9; }
+        tr:hover { background: #fffde7; } /* Efecto sutil al pasar el mouse */
     </style>
 </head>
 <body>
 
-<!-- Franja decorativa superior -->
 <div class="banner-contenedor">
     <img src="biblio.jpg" alt="Detalle Mural UNAM" onerror="this.src='https://via.placeholder.com/1200x45?text=UNAM+ACERVO'">
 </div>
@@ -123,11 +167,11 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>TÍTULO</th>
+                <th>LIBRO</th>
                 <th>AUTOR</th>
                 <th>AÑO</th>
-                <th>TOTAL</th>
-                <th>DISP.</th>
+                <th>TOTALES</th>
+                <th>DISPONIBLES</th>
             </tr>
         </thead>
         <tbody id="resultadoBody"></tbody>
@@ -145,6 +189,7 @@
             if (!response.ok) throw new Error();
             const data = await response.text();
             
+            // Separar filas y limpiar comillas y espacios
             const filas = data.split("\n").slice(1);
             baseDeDatos = filas.map(f => {
                 const c = f.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
@@ -158,10 +203,10 @@
                 };
             }).filter(l => l.titulo);
 
-            status.innerText = "✅ CONECTADO AL ACERVO";
+            status.innerHTML = "✅ CONECTADO AL ACERVO";
             status.style.color = "green";
         } catch (e) {
-            status.innerText = "❌ ERROR AL CARGAR DATOS";
+            status.innerHTML = "❌ ERROR AL CARGAR DATOS";
             status.style.color = "red";
         }
     }
@@ -182,14 +227,16 @@
         if (filtrados.length > 0) {
             tabla.style.display = "table";
             filtrados.forEach(l => {
-                cuerpo.innerHTML += `<tr>
+                const row = document.createElement('tr');
+                row.innerHTML = `
                     <td>${l.id}</td>
                     <td>${l.titulo}</td>
                     <td>${l.autor}</td>
                     <td>${l.anio}</td>
                     <td>${l.total}</td>
                     <td>${l.disp}</td>
-                </tr>`;
+                `;
+                cuerpo.appendChild(row);
             });
         } else {
             tabla.style.display = "none";
