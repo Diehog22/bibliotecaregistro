@@ -8,47 +8,25 @@
         :root { 
             --unam-azul: #003b5c; 
             --unam-oro: #fdbb30; 
-            --hoja-amarilla: #fef3c7; /* Color de los encabezados en Sheets */
-            --texto-rojo: #b30000;    /* El rojo de tus libros en la imagen */
+            --hoja-amarilla: #fce5cd; /* Color encabezado imagen.png */
+            --gris-tabla: #d9d9d9;     /* Color celdas imagen.png */
+            --texto-rojo: #ff0000;    
         }
         
         body { 
             margin: 0; 
-            padding: 0;
             font-family: 'Arial', sans-serif; 
             background-color: #cbd5e0; 
-            overflow-x: hidden;
-        }
-
-        .banner-contenedor {
-            width: 100%;
-            height: 45px;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            border-bottom: 2px solid var(--unam-oro);
-            background-color: var(--unam-azul);
-        }
-
-        .banner-contenedor img {
-            width: 100%;
-            height: 100%; 
-            object-fit: cover; 
-            object-position: center 20%;
-            display: block;
-            opacity: 0.7;
         }
 
         .header { 
             background: var(--unam-azul); 
             color: var(--unam-oro); 
-            padding: 12px; 
+            padding: 15px; 
             text-align: center; 
             border-bottom: 5px solid var(--unam-oro); 
-            font-size: 18px; 
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .container { 
@@ -56,7 +34,6 @@
             margin: 20px auto; 
             background: white; 
             padding: 20px; 
-            border: 1px solid #999; 
             box-shadow: 8px 8px 0px rgba(0,0,0,0.1); 
         }
 
@@ -69,12 +46,7 @@
             margin-bottom: 20px; 
         }
 
-        input { 
-            flex-grow: 1; 
-            padding: 12px; 
-            border: 2px solid var(--unam-azul); 
-            font-size: 16px; 
-        }
+        input { flex-grow: 1; padding: 12px; border: 2px solid var(--unam-azul); font-size: 16px; }
         
         button { 
             background: var(--unam-azul); 
@@ -83,168 +55,170 @@
             padding: 10px 20px; 
             cursor: pointer; 
             font-weight: bold;
-            transition: 0.3s;
         }
 
-        button:hover {
-            background: #002a42;
-        }
+        #status { text-align: center; font-weight: bold; margin: 10px 0; }
 
-        #status { 
-            text-align: center; 
-            font-weight: bold; 
-            margin: 10px 0; 
+        .seccion-label {
+            background: var(--unam-azul);
+            color: var(--unam-oro);
+            padding: 8px 15px;
+            margin-top: 25px;
             font-size: 14px;
-        }
-        
-        /* --- ESTILOS DE LA TABLA "TIPO GOOGLE SHEETS" --- */
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            background: white; 
-            display: none; 
-            margin-top: 10px;
-            border: 1px solid #ccc;
+            font-weight: bold;
+            display: none;
         }
 
-        th { 
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; display: none; }
+        
+        /* Estilo Tabla Libros (Hoja 1) */
+        #tablaLibros th { background: var(--hoja-amarilla); border: 1px solid #999; padding: 12px; }
+        #tablaLibros td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+
+        /* Estilo Tabla Alumnos (Hoja 2 - Según imagen.png) */
+        #tablaAlumnos th { 
             background: var(--hoja-amarilla); 
             border: 1px solid #999; 
             padding: 12px; 
-            font-size: 13px; 
-            color: #000; 
-            text-transform: uppercase;
-            font-weight: bold;
+            color: black;
         }
-
-        td { 
-            border: 1px solid #ccc; 
+        #tablaAlumnos td { 
+            background: var(--gris-tabla); 
+            border: 1px solid #b7b7b7; 
             padding: 10px; 
             text-align: center; 
-            color: #333; 
-            font-size: 14px; 
-        }
-
-        /* Columna de TÍTULO: Roja y Negrita como en imagen.png */
-        td:nth-child(2) {
-            color: var(--texto-rojo);
             font-weight: bold;
-            text-align: left; /* Los títulos suelen leerse mejor alineados a la izquierda */
+            text-transform: uppercase;
+            color: #333;
         }
 
-        /* Columna de AUTOR: También roja como en tu captura */
-        td:nth-child(3) {
-            color: var(--texto-rojo);
-        }
-
-        /* Estilo para los números en rojo */
-        td:nth-child(5), td:nth-child(6) {
-            color: var(--texto-rojo);
-            font-weight: bold;
-        }
-
-        tr:nth-child(even) { background: #f9f9f9; }
-        tr:hover { background: #fffde7; } /* Efecto sutil al pasar el mouse */
+        .rojo-negrita { color: var(--texto-rojo) !important; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="banner-contenedor">
-    <img src="biblio.jpg" alt="Detalle Mural UNAM" onerror="this.src='https://via.placeholder.com/1200x45?text=UNAM+ACERVO'">
-</div>
-
-<div class="header">SISTEMA DE CONSULTA DE ACERVO - UNAM</div>
+<div class="header">SISTEMA DE CONSULTA INTEGRADO - UNAM</div>
 
 <div class="container">
     <div class="search-box">
-        <input type="text" id="busqueda" placeholder="Buscar por título, autor o tema...">
+        <input type="text" id="busqueda" placeholder="Buscar por título, autor o nombre de alumno...">
         <button onclick="buscar()">BUSCAR</button>
     </div>
 
-    <div id="status">⏳ Cargando base de datos...</div>
+    <div id="status">⏳ Sincronizando con Google Sheets...</div>
 
+    <!-- TABLA DE LIBROS -->
+    <div id="labelLibros" class="seccion-label">RESULTADOS EN ACERVO (LIBROS)</div>
     <table id="tablaLibros">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>LIBRO</th>
-                <th>AUTOR</th>
-                <th>AÑO</th>
-                <th>TOTALES</th>
-                <th>DISPONIBLES</th>
+                <th>ID</th><th>LIBRO</th><th>AUTOR</th><th>AÑO</th><th>TOTAL</th><th>DISP.</th>
             </tr>
         </thead>
-        <tbody id="resultadoBody"></tbody>
+        <tbody id="cuerpoLibros"></tbody>
+    </table>
+
+    <!-- TABLA DE ALUMNOS (Hoja 2) -->
+    <div id="labelAlumnos" class="seccion-label">ESTATUS DE PRÉSTAMOS (ALUMNOS)</div>
+    <table id="tablaAlumnos">
+        <thead>
+            <tr>
+                <th>ID-ESTUDIANTE</th>
+                <th>NOMBRE</th>
+                <th>RECARGOS</th>
+                <th>LIBROS PRESTADOS</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoAlumnos"></tbody>
     </table>
 </div>
 
 <script>
-    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxvn_OzvmwzYPuzfVCVgviDoVVMQkm75FwkiYPelVZkwh4sKMyFVevJsJXLuKNGCsZaDCM9V0WkK36/pub?output=csv';
-    let baseDeDatos = [];
+    // Enlaces proporcionados por el usuario
+    const urlLibros = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxvn_OzvmwzYPuzfVCVgviDoVVMQkm75FwkiYPelVZkwh4sKMyFVevJsJXLuKNGCsZaDCM9V0WkK36/pub?output=csv';
+    const urlAlumnos = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxvn_OzvmwzYPuzfVCVgviDoVVMQkm75FwkiYPelVZkwh4sKMyFVevJsJXLuKNGCsZaDCM9V0WkK36/pub?gid=1494947260&single=true&output=csv';
 
-    async function cargarBiblioteca() {
-        const status = document.getElementById('status');
+    let baseLibros = [];
+    let baseAlumnos = [];
+
+    async function cargarBasesDeDatos() {
         try {
-            const response = await fetch(csvUrl);
-            if (!response.ok) throw new Error();
-            const data = await response.text();
-            
-            // Separar filas y limpiar comillas y espacios
-            const filas = data.split("\n").slice(1);
-            baseDeDatos = filas.map(f => {
-                const c = f.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                return { 
-                    id: (c[0] || "").replace(/"/g, "").trim(), 
-                    titulo: (c[1] || "").replace(/"/g, "").trim(), 
-                    autor: (c[2] || "").replace(/"/g, "").trim(), 
-                    anio: (c[3] || "").replace(/"/g, "").trim(), 
-                    total: (c[4] || "").replace(/"/g, "").trim(), 
-                    disp: (c[5] || "").replace(/"/g, "").trim() 
-                };
-            }).filter(l => l.titulo);
+            const [resL, resA] = await Promise.all([fetch(urlLibros), fetch(urlAlumnos)]);
+            baseLibros = procesarCSV(await resL.text());
+            baseAlumnos = procesarCSV(await resA.text());
 
-            status.innerHTML = "✅ CONECTADO AL ACERVO";
-            status.style.color = "green";
+            document.getElementById('status').innerHTML = "✅ SISTEMA CONECTADO A HOJA 1 Y HOJA 2";
+            document.getElementById('status').style.color = "green";
         } catch (e) {
-            status.innerHTML = "❌ ERROR AL CARGAR DATOS";
-            status.style.color = "red";
+            document.getElementById('status').innerHTML = "❌ ERROR AL CONECTAR CON LAS TABLAS";
+            document.getElementById('status').style.color = "red";
         }
+    }
+
+    function procesarCSV(data) {
+        return data.split("\n").slice(1).map(f => {
+            return f.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(v => v.replace(/"/g, "").trim());
+        }).filter(fila => fila.length > 1);
     }
 
     function buscar() {
         const txt = document.getElementById('busqueda').value.toLowerCase().trim();
-        const tabla = document.getElementById('tablaLibros');
-        const cuerpo = document.getElementById('resultadoBody');
+        if(!txt) return;
+
+        // Filtrar Libros (por Título o Autor)
+        const librosMatch = baseLibros.filter(l => l[1].toLowerCase().includes(txt) || l[2].toLowerCase().includes(txt));
         
-        if (baseDeDatos.length === 0) return;
+        // Filtrar Alumnos (por ID o Nombre)
+        const alumnosMatch = baseAlumnos.filter(a => a[0].toLowerCase().includes(txt) || a[1].toLowerCase().includes(txt));
 
-        const filtrados = baseDeDatos.filter(l => 
-            l.titulo.toLowerCase().includes(txt) || 
-            l.autor.toLowerCase().includes(txt)
-        );
+        renderLibros(librosMatch);
+        renderAlumnos(alumnosMatch);
+    }
 
+    function renderLibros(lista) {
+        const tabla = document.getElementById('tablaLibros');
+        const label = document.getElementById('labelLibros');
+        const cuerpo = document.getElementById('cuerpoLibros');
         cuerpo.innerHTML = "";
-        if (filtrados.length > 0) {
+
+        if (lista.length > 0) {
             tabla.style.display = "table";
-            filtrados.forEach(l => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${l.id}</td>
-                    <td>${l.titulo}</td>
-                    <td>${l.autor}</td>
-                    <td>${l.anio}</td>
-                    <td>${l.total}</td>
-                    <td>${l.disp}</td>
-                `;
-                cuerpo.appendChild(row);
+            label.style.display = "block";
+            lista.forEach(l => {
+                cuerpo.innerHTML += `<tr><td>${l[0]}</td><td>${l[1]}</td><td>${l[2]}</td><td>${l[3]}</td><td>${l[4]}</td><td class="rojo-negrita">${l[5]}</td></tr>`;
             });
         } else {
             tabla.style.display = "none";
-            alert("No se encontraron resultados.");
+            label.style.display = "none";
         }
     }
 
-    window.onload = cargarBiblioteca;
+    function renderAlumnos(lista) {
+        const tabla = document.getElementById('tablaAlumnos');
+        const label = document.getElementById('labelAlumnos');
+        const cuerpo = document.getElementById('cuerpoAlumnos');
+        cuerpo.innerHTML = "";
+
+        if (lista.length > 0) {
+            tabla.style.display = "table";
+            label.style.display = "block";
+            lista.forEach(a => {
+                const claseRecargo = (a[2] || "").toUpperCase() === "SÍ" ? "rojo-negrita" : "";
+                cuerpo.innerHTML += `
+                    <tr>
+                        <td>${a[0]}</td>
+                        <td>${a[1]}</td>
+                        <td class="${claseRecargo}">${a[2]}</td>
+                        <td class="rojo-negrita">${a[3]}</td>
+                    </tr>`;
+            });
+        } else {
+            tabla.style.display = "none";
+            label.style.display = "none";
+        }
+    }
+
+    window.onload = cargarBasesDeDatos;
     document.getElementById("busqueda").addEventListener("keypress", (e) => { if(e.key === "Enter") buscar(); });
 </script>
 
