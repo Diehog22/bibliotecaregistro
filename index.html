@@ -8,16 +8,12 @@
         :root { 
             --unam-azul: #003b5c; 
             --unam-oro: #fdbb30; 
-            --hoja-amarilla: #fce5cd; /* Color encabezado imagen.png */
-            --gris-tabla: #d9d9d9;     /* Color celdas imagen.png */
+            --hoja-amarilla: #fce5cd; 
+            --gris-tabla: #d9d9d9;     
             --texto-rojo: #ff0000;    
         }
         
-        body { 
-            margin: 0; 
-            font-family: 'Arial', sans-serif; 
-            background-color: #cbd5e0; 
-        }
+        body { margin: 0; font-family: 'Arial', sans-serif; background-color: #cbd5e0; }
 
         .header { 
             background: var(--unam-azul); 
@@ -37,18 +33,43 @@
             box-shadow: 8px 8px 0px rgba(0,0,0,0.1); 
         }
 
+        /* --- ESTILO DE LOS BOTONES DE PESTAÑA --- */
+        .tabs-contenedor {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 0;
+        }
+
+        .tab-btn {
+            padding: 12px 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            background: #e2e8f0;
+            color: #4a5568;
+            border-radius: 8px 8px 0 0;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active {
+            background: var(--unam-azul);
+            color: var(--unam-oro);
+            border-bottom: 3px solid var(--unam-oro);
+        }
+
         .search-box { 
             background: #f3f4f6; 
             padding: 15px; 
             display: flex; 
             gap: 10px; 
             border: 1px solid #ddd; 
-            margin-bottom: 20px; 
+            margin-bottom: 20px;
+            border-radius: 0 0 8px 8px;
         }
 
         input { flex-grow: 1; padding: 12px; border: 2px solid var(--unam-azul); font-size: 16px; }
         
-        button { 
+        button.btn-buscar { 
             background: var(--unam-azul); 
             color: var(--unam-oro); 
             border: 2px solid var(--unam-oro); 
@@ -57,31 +78,19 @@
             font-weight: bold;
         }
 
-        #status { text-align: center; font-weight: bold; margin: 10px 0; }
+        #status { text-align: center; font-weight: bold; margin: 10px 0; font-size: 13px; }
 
-        .seccion-label {
-            background: var(--unam-azul);
-            color: var(--unam-oro);
-            padding: 8px 15px;
-            margin-top: 25px;
-            font-size: 14px;
-            font-weight: bold;
-            display: none;
-        }
+        .view-content { display: none; }
+        .view-content.active { display: block; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; display: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         
-        /* Estilo Tabla Libros (Hoja 1) */
+        /* Tabla Libros */
         #tablaLibros th { background: var(--hoja-amarilla); border: 1px solid #999; padding: 12px; }
         #tablaLibros td { border: 1px solid #ccc; padding: 10px; text-align: center; }
 
-        /* Estilo Tabla Alumnos (Hoja 2 - Según imagen.png) */
-        #tablaAlumnos th { 
-            background: var(--hoja-amarilla); 
-            border: 1px solid #999; 
-            padding: 12px; 
-            color: black;
-        }
+        /* Tabla Alumnos (Estilo imagen.png) */
+        #tablaAlumnos th { background: var(--hoja-amarilla); border: 1px solid #999; padding: 12px; }
         #tablaAlumnos td { 
             background: var(--gris-tabla); 
             border: 1px solid #b7b7b7; 
@@ -89,69 +98,76 @@
             text-align: center; 
             font-weight: bold;
             text-transform: uppercase;
-            color: #333;
         }
 
-        .rojo-negrita { color: var(--texto-rojo) !important; font-weight: bold; }
+        .rojo { color: var(--texto-rojo) !important; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="header">SISTEMA DE CONSULTA INTEGRADO - UNAM</div>
+<div class="header">SISTEMA DE GESTIÓN BIBLIOTECARIA - UNAM</div>
 
 <div class="container">
-    <div class="search-box">
-        <input type="text" id="busqueda" placeholder="Buscar por título, autor o nombre de alumno...">
-        <button onclick="buscar()">BUSCAR</button>
+    <!-- Botones para cambiar entre hojas -->
+    <div class="tabs-contenedor">
+        <button class="tab-btn active" onclick="cambiarPestana('libros')">📚 LIBROS (HOJA 1)</button>
+        <button class="tab-btn" onclick="cambiarPestana('estudiantes')">🎓 ESTUDIANTES (HOJA 2)</button>
     </div>
 
-    <div id="status">⏳ Sincronizando con Google Sheets...</div>
+    <div class="search-box">
+        <input type="text" id="busqueda" placeholder="Escribe para buscar...">
+        <button class="btn-buscar" onclick="buscar()">BUSCAR</button>
+    </div>
 
-    <!-- TABLA DE LIBROS -->
-    <div id="labelLibros" class="seccion-label">RESULTADOS EN ACERVO (LIBROS)</div>
-    <table id="tablaLibros">
-        <thead>
-            <tr>
-                <th>ID</th><th>LIBRO</th><th>AUTOR</th><th>AÑO</th><th>TOTAL</th><th>DISP.</th>
-            </tr>
-        </thead>
-        <tbody id="cuerpoLibros"></tbody>
-    </table>
+    <div id="status">⏳ Conectando con las bases de datos...</div>
 
-    <!-- TABLA DE ALUMNOS (Hoja 2) -->
-    <div id="labelAlumnos" class="seccion-label">ESTATUS DE PRÉSTAMOS (ALUMNOS)</div>
-    <table id="tablaAlumnos">
-        <thead>
-            <tr>
-                <th>ID-ESTUDIANTE</th>
-                <th>NOMBRE</th>
-                <th>RECARGOS</th>
-                <th>LIBROS PRESTADOS</th>
-            </tr>
-        </thead>
-        <tbody id="cuerpoAlumnos"></tbody>
-    </table>
+    <!-- VISTA DE LIBROS -->
+    <div id="view-libros" class="view-content active">
+        <table id="tablaLibros">
+            <thead>
+                <tr>
+                    <th>ID</th><th>LIBRO</th><th>AUTOR</th><th>AÑO</th><th>TOTAL</th><th>DISPONIBLES</th>
+                </tr>
+            </thead>
+            <tbody id="cuerpoLibros"></tbody>
+        </table>
+    </div>
+
+    <!-- VISTA DE ESTUDIANTES -->
+    <div id="view-estudiantes" class="view-content">
+        <table id="tablaAlumnos">
+            <thead>
+                <tr>
+                    <th>ID-ESTUDIANTE</th>
+                    <th>NOMBRE</th>
+                    <th>RECARGOS</th>
+                    <th>LIBROS PRESTADOS</th>
+                </tr>
+            </thead>
+            <tbody id="cuerpoAlumnos"></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-    // Enlaces proporcionados por el usuario
     const urlLibros = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxvn_OzvmwzYPuzfVCVgviDoVVMQkm75FwkiYPelVZkwh4sKMyFVevJsJXLuKNGCsZaDCM9V0WkK36/pub?output=csv';
     const urlAlumnos = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxvn_OzvmwzYPuzfVCVgviDoVVMQkm75FwkiYPelVZkwh4sKMyFVevJsJXLuKNGCsZaDCM9V0WkK36/pub?gid=1494947260&single=true&output=csv';
 
     let baseLibros = [];
     let baseAlumnos = [];
+    let vistaActual = 'libros';
 
-    async function cargarBasesDeDatos() {
+    async function cargarDatos() {
         try {
             const [resL, resA] = await Promise.all([fetch(urlLibros), fetch(urlAlumnos)]);
             baseLibros = procesarCSV(await resL.text());
             baseAlumnos = procesarCSV(await resA.text());
-
-            document.getElementById('status').innerHTML = "✅ SISTEMA CONECTADO A HOJA 1 Y HOJA 2";
+            document.getElementById('status').innerHTML = "✅ DATOS SINCRONIZADOS";
             document.getElementById('status').style.color = "green";
+            // Mostrar todos los datos al cargar
+            mostrarResultados(baseLibros, baseAlumnos);
         } catch (e) {
-            document.getElementById('status').innerHTML = "❌ ERROR AL CONECTAR CON LAS TABLAS";
-            document.getElementById('status').style.color = "red";
+            document.getElementById('status').innerHTML = "❌ ERROR DE CONEXIÓN";
         }
     }
 
@@ -161,64 +177,47 @@
         }).filter(fila => fila.length > 1);
     }
 
+    function cambiarPestana(tipo) {
+        vistaActual = tipo;
+        // Actualizar botones
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+
+        // Actualizar vistas
+        document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-' + tipo).classList.add('active');
+        
+        // Limpiar buscador y resetear tablas
+        document.getElementById('busqueda').value = "";
+        mostrarResultados(baseLibros, baseAlumnos);
+    }
+
     function buscar() {
         const txt = document.getElementById('busqueda').value.toLowerCase().trim();
-        if(!txt) return;
+        const filtradosLibros = baseLibros.filter(l => l[1].toLowerCase().includes(txt) || l[2].toLowerCase().includes(txt));
+        const filtradosAlumnos = baseAlumnos.filter(a => a[0].toLowerCase().includes(txt) || a[1].toLowerCase().includes(txt));
+        mostrarResultados(filtradosLibros, filtradosAlumnos);
+    }
 
-        // Filtrar Libros (por Título o Autor)
-        const librosMatch = baseLibros.filter(l => l[1].toLowerCase().includes(txt) || l[2].toLowerCase().includes(txt));
+    function mostrarResultados(libros, alumnos) {
+        const cLibros = document.getElementById('cuerpoLibros');
+        const cAlumnos = document.getElementById('cuerpoAlumnos');
         
-        // Filtrar Alumnos (por ID o Nombre)
-        const alumnosMatch = baseAlumnos.filter(a => a[0].toLowerCase().includes(txt) || a[1].toLowerCase().includes(txt));
+        cLibros.innerHTML = libros.map(l => `
+            <tr><td>${l[0]}</td><td>${l[1]}</td><td>${l[2]}</td><td>${l[3]}</td><td>${l[4]}</td><td class="rojo">${l[5]}</td></tr>
+        `).join('');
 
-        renderLibros(librosMatch);
-        renderAlumnos(alumnosMatch);
+        cAlumnos.innerHTML = alumnos.map(a => `
+            <tr>
+                <td>${a[0]}</td>
+                <td>${a[1]}</td>
+                <td class="${(a[2]||'').toUpperCase()==='SÍ' ? 'rojo' : ''}">${a[2]}</td>
+                <td class="rojo">${a[3]}</td>
+            </tr>
+        `).join('');
     }
 
-    function renderLibros(lista) {
-        const tabla = document.getElementById('tablaLibros');
-        const label = document.getElementById('labelLibros');
-        const cuerpo = document.getElementById('cuerpoLibros');
-        cuerpo.innerHTML = "";
-
-        if (lista.length > 0) {
-            tabla.style.display = "table";
-            label.style.display = "block";
-            lista.forEach(l => {
-                cuerpo.innerHTML += `<tr><td>${l[0]}</td><td>${l[1]}</td><td>${l[2]}</td><td>${l[3]}</td><td>${l[4]}</td><td class="rojo-negrita">${l[5]}</td></tr>`;
-            });
-        } else {
-            tabla.style.display = "none";
-            label.style.display = "none";
-        }
-    }
-
-    function renderAlumnos(lista) {
-        const tabla = document.getElementById('tablaAlumnos');
-        const label = document.getElementById('labelAlumnos');
-        const cuerpo = document.getElementById('cuerpoAlumnos');
-        cuerpo.innerHTML = "";
-
-        if (lista.length > 0) {
-            tabla.style.display = "table";
-            label.style.display = "block";
-            lista.forEach(a => {
-                const claseRecargo = (a[2] || "").toUpperCase() === "SÍ" ? "rojo-negrita" : "";
-                cuerpo.innerHTML += `
-                    <tr>
-                        <td>${a[0]}</td>
-                        <td>${a[1]}</td>
-                        <td class="${claseRecargo}">${a[2]}</td>
-                        <td class="rojo-negrita">${a[3]}</td>
-                    </tr>`;
-            });
-        } else {
-            tabla.style.display = "none";
-            label.style.display = "none";
-        }
-    }
-
-    window.onload = cargarBasesDeDatos;
+    window.onload = cargarDatos;
     document.getElementById("busqueda").addEventListener("keypress", (e) => { if(e.key === "Enter") buscar(); });
 </script>
 
