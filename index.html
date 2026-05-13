@@ -15,13 +15,15 @@
         
         body { margin: 0; font-family: 'Arial', sans-serif; background-color: #cbd5e0; }
 
+        /* --- ENCABEZADO --- */
         .header { 
             background: var(--unam-azul); 
             color: var(--unam-oro); 
-            padding: 15px; 
+            padding: 20px; 
             text-align: center; 
             border-bottom: 5px solid var(--unam-oro); 
             font-weight: bold;
+            font-size: 22px;
             text-transform: uppercase;
         }
 
@@ -29,68 +31,83 @@
             max-width: 1100px; 
             margin: 20px auto; 
             background: white; 
-            padding: 20px; 
-            box-shadow: 8px 8px 0px rgba(0,0,0,0.1); 
+            padding: 25px; 
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.1); 
+            border-radius: 8px;
         }
 
-        /* --- ESTILO DE LOS BOTONES DE PESTAÑA --- */
-        .tabs-contenedor {
+        /* --- DISEÑO DE LOS BOTONES (TABS) --- */
+        .navegacion-principal {
             display: flex;
-            gap: 5px;
-            margin-bottom: 0;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: #f1f5f9;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
         }
 
         .tab-btn {
-            padding: 12px 25px;
-            border: none;
-            cursor: pointer;
+            flex: 1;
+            padding: 15px;
+            font-size: 16px;
             font-weight: bold;
-            background: #e2e8f0;
-            color: #4a5568;
-            border-radius: 8px 8px 0 0;
-            transition: 0.3s;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #cbd5e0;
+            color: #1e293b;
+            text-transform: uppercase;
         }
 
+        /* Cuando la pestaña está seleccionada */
         .tab-btn.active {
             background: var(--unam-azul);
             color: var(--unam-oro);
-            border-bottom: 3px solid var(--unam-oro);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+            border-bottom: 4px solid var(--unam-oro);
         }
 
+        .tab-btn:hover:not(.active) {
+            background: #94a3b8;
+        }
+
+        /* --- BUSCADOR --- */
         .search-box { 
-            background: #f3f4f6; 
-            padding: 15px; 
             display: flex; 
             gap: 10px; 
-            border: 1px solid #ddd; 
-            margin-bottom: 20px;
-            border-radius: 0 0 8px 8px;
+            margin-bottom: 25px; 
         }
 
-        input { flex-grow: 1; padding: 12px; border: 2px solid var(--unam-azul); font-size: 16px; }
+        input { flex-grow: 1; padding: 15px; border: 2px solid var(--unam-azul); font-size: 16px; border-radius: 5px; }
         
-        button.btn-buscar { 
+        .btn-buscar { 
             background: var(--unam-azul); 
             color: var(--unam-oro); 
             border: 2px solid var(--unam-oro); 
-            padding: 10px 20px; 
+            padding: 10px 30px; 
             cursor: pointer; 
             font-weight: bold;
+            border-radius: 5px;
         }
 
-        #status { text-align: center; font-weight: bold; margin: 10px 0; font-size: 13px; }
+        #status { text-align: center; font-weight: bold; margin-bottom: 15px; color: #475569; }
 
+        /* --- CONTENIDO DE LAS TABLAS --- */
         .view-content { display: none; }
         .view-content.active { display: block; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         
+        th { background: var(--hoja-amarilla); border: 1px solid #999; padding: 12px; color: black; }
+
         /* Tabla Libros */
-        #tablaLibros th { background: var(--hoja-amarilla); border: 1px solid #999; padding: 12px; }
         #tablaLibros td { border: 1px solid #ccc; padding: 10px; text-align: center; }
 
-        /* Tabla Alumnos (Estilo imagen.png) */
-        #tablaAlumnos th { background: var(--hoja-amarilla); border: 1px solid #999; padding: 12px; }
+        /* Tabla Estudiantes (Estilo imagen.png) */
         #tablaAlumnos td { 
             background: var(--gris-tabla); 
             border: 1px solid #b7b7b7; 
@@ -105,23 +122,24 @@
 </head>
 <body>
 
-<div class="header">SISTEMA DE GESTIÓN BIBLIOTECARIA - UNAM</div>
+<div class="header">SISTEMA BIBLIOTECARIO UNAM</div>
 
 <div class="container">
-    <!-- Botones para cambiar entre hojas -->
-    <div class="tabs-contenedor">
-        <button class="tab-btn active" onclick="cambiarPestana('libros')">📚 LIBROS (HOJA 1)</button>
-        <button class="tab-btn" onclick="cambiarPestana('estudiantes')">🎓 ESTUDIANTES (HOJA 2)</button>
+    
+    <!-- PESTAÑAS VISIBLES -->
+    <div class="navegacion-principal">
+        <button id="btn-libros" class="tab-btn active" onclick="cambiarPestana('libros')">📚 Ver Acervo (Hoja 1)</button>
+        <button id="btn-estudiantes" class="tab-btn" onclick="cambiarPestana('estudiantes')">🎓 Ver Alumnos (Hoja 2)</button>
     </div>
 
     <div class="search-box">
-        <input type="text" id="busqueda" placeholder="Escribe para buscar...">
+        <input type="text" id="busqueda" placeholder="Buscar en la pestaña actual...">
         <button class="btn-buscar" onclick="buscar()">BUSCAR</button>
     </div>
 
-    <div id="status">⏳ Conectando con las bases de datos...</div>
+    <div id="status">⏳ Cargando bases de datos de Google Sheets...</div>
 
-    <!-- VISTA DE LIBROS -->
+    <!-- VISTA 1: LIBROS -->
     <div id="view-libros" class="view-content active">
         <table id="tablaLibros">
             <thead>
@@ -133,7 +151,7 @@
         </table>
     </div>
 
-    <!-- VISTA DE ESTUDIANTES -->
+    <!-- VISTA 2: ESTUDIANTES -->
     <div id="view-estudiantes" class="view-content">
         <table id="tablaAlumnos">
             <thead>
@@ -162,12 +180,11 @@
             const [resL, resA] = await Promise.all([fetch(urlLibros), fetch(urlAlumnos)]);
             baseLibros = procesarCSV(await resL.text());
             baseAlumnos = procesarCSV(await resA.text());
-            document.getElementById('status').innerHTML = "✅ DATOS SINCRONIZADOS";
+            document.getElementById('status').innerHTML = "✅ CONEXIÓN EXITOSA";
             document.getElementById('status').style.color = "green";
-            // Mostrar todos los datos al cargar
             mostrarResultados(baseLibros, baseAlumnos);
         } catch (e) {
-            document.getElementById('status').innerHTML = "❌ ERROR DE CONEXIÓN";
+            document.getElementById('status').innerHTML = "❌ ERROR AL CARGAR DATOS";
         }
     }
 
@@ -179,15 +196,17 @@
 
     function cambiarPestana(tipo) {
         vistaActual = tipo;
+        
         // Actualizar botones
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        event.currentTarget.classList.add('active');
+        if(tipo === 'libros') document.getElementById('btn-libros').classList.add('active');
+        else document.getElementById('btn-estudiantes').classList.add('active');
 
         // Actualizar vistas
         document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
         document.getElementById('view-' + tipo).classList.add('active');
         
-        // Limpiar buscador y resetear tablas
+        // Limpiar buscador
         document.getElementById('busqueda').value = "";
         mostrarResultados(baseLibros, baseAlumnos);
     }
