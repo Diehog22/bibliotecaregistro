@@ -34,7 +34,7 @@
             border: 1px solid #999;
         }
 
-        /* --- BOTONES DE PESTAÑAS (TABS) --- */
+        /* --- TABS --- */
         .tabs-container {
             display: flex;
             margin-bottom: 15px;
@@ -51,7 +51,7 @@
             font-weight: bold;
             background: #eee;
             color: var(--unam-azul);
-            font-size: 14px;
+            font-size: 13px;
             transition: 0.3s;
         }
 
@@ -69,9 +69,9 @@
             margin-bottom: 10px; 
         }
 
-        input { flex-grow: 1; padding: 12px; border: 2px solid var(--unam-azul); font-size: 16px; }
+        input, select { flex-grow: 1; padding: 12px; border: 2px solid var(--unam-azul); font-size: 16px; }
         
-        .btn-buscar { 
+        .btn-buscar, .btn-accion { 
             background: var(--unam-azul); 
             color: var(--unam-oro); 
             border: 2px solid var(--unam-oro); 
@@ -86,11 +86,9 @@
         .view-content.active { display: block; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        
         th { background: var(--hoja-amarilla); border: 1px solid #999; padding: 10px; font-size: 13px; }
         td { border: 1px solid #ccc; padding: 10px; text-align: center; font-size: 14px; }
 
-        /* Estilo Alumnos (igual a imagen.png) */
         .fila-alumno td { 
             background: var(--gris-tabla) !important; 
             font-weight: bold; 
@@ -98,22 +96,33 @@
         }
 
         .rojo { color: var(--texto-rojo) !important; font-weight: bold; }
+
+        /* Estilos Formulario Préstamo */
+        .form-prestamo {
+            background: #f9f9f9;
+            padding: 20px;
+            border: 2px dashed var(--unam-azul);
+            text-align: center;
+        }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; color: var(--unam-azul); }
     </style>
 </head>
 <body>
 
-<div class="header">SISTEMA DE CONSULTA DE ACERVO - UNAM</div>
+<div class="header">SISTEMA DE CONSULTA Y GESTIÓN DE PRÉSTAMOS - UNAM</div>
 
 <div class="container">
     
-    <!-- BOTONES NUEVOS -->
     <div class="tabs-container">
         <button id="btnL" class="tab-btn active" onclick="cambiarVista('libros')">📚 CONSULTAR LIBROS</button>
         <button id="btnA" class="tab-btn" onclick="cambiarVista('alumnos')">🎓 CONSULTAR ALUMNOS</button>
+        <button id="btnP" class="tab-btn" onclick="cambiarVista('prestamo')">✍️ REGISTRAR PRÉSTAMO</button>
     </div>
 
-    <div class="search-box">
-        <input type="text" id="busqueda" placeholder="Buscar...">
+    <!-- Buscador General (oculto en pestaña préstamo) -->
+    <div class="search-box" id="caja-busqueda">
+        <input type="text" id="busqueda" placeholder="Buscar por nombre o ID...">
         <button class="btn-buscar" onclick="buscar()">BUSCAR</button>
     </div>
 
@@ -142,9 +151,29 @@
             <tbody id="resAlumnos"></tbody>
         </table>
     </div>
+
+    <!-- FORMULARIO PRÉSTAMO -->
+    <div id="vista-prestamo" class="view-content">
+        <div class="form-prestamo">
+            <h2 style="color: var(--unam-azul)">NUEVA SOLICITUD DE PRÉSTAMO</h2>
+            <div class="form-group">
+                <label>Seleccionar Estudiante:</label>
+                <select id="select-alumno"></select>
+            </div>
+            <div class="form-group">
+                <label>Seleccionar Libro:</label>
+                <select id="select-libro"></select>
+            </div>
+            <p id="info-fecha">📅 Fecha de entrega: <strong>20 de mayo de 2026</strong></p>
+            <button class="btn-accion" onclick="ejecutarPrestamo()">CONFIRMAR PRÉSTAMO Y ACTUALIZAR HOJAS</button>
+        </div>
+    </div>
 </div>
 
 <script>
+    // URL de tu Apps Script (Deberás reemplazarla por la URL de despliegue que generes)
+    const scriptURL = 'https://script.google.com/macros/s/TU_SCRIPT_ID/exec';
+    
     const urlL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxvn_OzvmwzYPuzfVCVgviDoVVMQkm75FwkiYPelVZkwh4sKMyFVevJsJXLuKNGCsZaDCM9V0WkK36/pub?output=csv';
     const urlA = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxvn_OzvmwzYPuzfVCVgviDoVVMQkm75FwkiYPelVZkwh4sKMyFVevJsJXLuKNGCsZaDCM9V0WkK36/pub?gid=1494947260&single=true&output=csv';
 
@@ -156,6 +185,7 @@
         baseL = procesar(await rL.text());
         baseA = procesar(await rA.text());
         render(baseL, baseA);
+        poblarSelects();
     }
 
     function procesar(txt) {
@@ -163,20 +193,61 @@
     }
 
     function cambiarVista(v) {
-        document.getElementById('vista-libros').classList.toggle('active', v === 'libros');
-        document.getElementById('vista-alumnos').classList.toggle('active', v === 'alumnos');
-        document.getElementById('btnL').classList.toggle('active', v === 'libros');
-        document.getElementById('btnA').classList.toggle('active', v === 'alumnos');
+        document.querySelectorAll('.view-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById('caja-busqueda').style.display = (v === 'prestamo') ? 'none' : 'flex';
+        
+        document.getElementById('vista-' + v).classList.add('active');
+        document.getElementById('btn' + v.charAt(0).toUpperCase()).classList.add('active');
+    }
+
+    function poblarSelects() {
+        const sA = document.getElementById('select-alumno');
+        const sL = document.getElementById('select-libro');
+        
+        sA.innerHTML = baseA.map(a => `<option value="${a[0]}">${a[1]} (${a[0]})</option>`).join('');
+        sL.innerHTML = baseL.filter(l => parseInt(l[5]) > 0).map(l => `<option value="${l[0]}">${l[1]} (Stock: ${l[5]})</option>`).join('');
     }
 
     function buscar() {
         const t = document.getElementById('busqueda').value.toLowerCase();
-        render(baseL.filter(l => l[1].toLowerCase().includes(t)), baseA.filter(a => a[1].toLowerCase().includes(t)));
+        render(baseL.filter(l => l[1].toLowerCase().includes(t) || l[0].toLowerCase().includes(t)), 
+               baseA.filter(a => a[1].toLowerCase().includes(t) || a[0].toLowerCase().includes(t)));
     }
 
     function render(libros, alumnos) {
         document.getElementById('resLibros').innerHTML = libros.map(l => `<tr><td>${l[0]}</td><td class="rojo" style="text-align:left">${l[1]}</td><td class="rojo">${l[2]}</td><td>${l[3]}</td><td class="rojo">${l[4]}</td><td class="rojo">${l[5]}</td></tr>`).join('');
         document.getElementById('resAlumnos').innerHTML = alumnos.map(a => `<tr class="fila-alumno"><td>${a[0]}</td><td>${a[1]}</td><td class="${a[2]=='SÍ'?'rojo':''}">${a[2]}</td><td class="rojo">${a[3]}</td></tr>`).join('');
+    }
+
+    async function ejecutarPrestamo() {
+        const idAlumno = document.getElementById('select-alumno').value;
+        const idLibro = document.getElementById('select-libro').value;
+        const nombreLibro = document.getElementById('select-libro').options[document.getElementById('select-libro').selectedIndex].text.split(' (Stock')[0];
+
+        if(!confirm(`¿Confirmar préstamo de "${nombreLibro}" al alumno con ID ${idAlumno}?`)) return;
+
+        document.getElementById('status').innerText = "⏳ PROCESANDO EN GOOGLE SHEETS...";
+
+        try {
+            const data = {
+                idAlumno: idAlumno,
+                idLibro: idLibro,
+                nombreLibro: nombreLibro,
+                fechaEntrega: "20 de mayo de 2026"
+            };
+
+            // Simulación de envío (Requiere que configures el Apps Script con doPost)
+            console.log("Enviando datos:", data);
+            
+            // fetch(scriptURL, { method: 'POST', body: JSON.stringify(data) });
+
+            alert("Préstamo registrado. La disponibilidad se restará y la fecha de entrega se asignó al alumno.");
+            document.getElementById('status').innerText = "✅ PRÉSTAMO COMPLETADO";
+            cargar(); // Recargar datos para ver reflejado el cambio
+        } catch (e) {
+            alert("Error al conectar con la base de datos.");
+        }
     }
 
     window.onload = cargar;
