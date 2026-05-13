@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acervo Digital - UNAM</title>
+    <style>
+        :root { 
+            --unam-azul: #003b5c; 
+            --unam-oro: #fdbb30; 
+        }
+        
+        body { 
+            margin: 0; 
+            padding: 0;
+            font-family: 'Arial', sans-serif; 
+            background-color: #cbd5e0; 
+            overflow-x: hidden; /* Evita que aparezca una barra de desplazamiento horizontal */
+        }
+
+        /* BANNER QUE OCUPA TODO EL ANCHO (Solución para imagen_3.jpg) */
+        .banner-contenedor {
+            width: 100vw; /* 100% del ancho de la ventana */
+            height: auto;
+            margin: 0;
+            padding: 0;
+            line-height: 0; /* Elimina espacio extra debajo de la imagen */
+        }
+
+        .banner-contenedor img {
+            width: 100%; /* Se estira para cubrir todo el contenedor */
+            height: auto;
+            display: block;
+        }
+
+        /* TÍTULO AZUL */
+        .header { 
+            background: var(--unam-azul); 
+            color: var(--unam-oro); 
+            padding: 20px; 
+            text-align: center; 
+            border-bottom: 5px solid var(--unam-oro); 
+            font-size: 24px; 
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .container { 
+            max-width: 1000px; 
+            margin: 30px auto; 
+            background: white; 
+            padding: 25px; 
+            border: 1px solid #999; 
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.1); 
+        }
+
+        .search-box { 
+            background: #f3f4f6; 
+            padding: 20px; 
+            display: flex; 
+            gap: 10px; 
+            border: 1px solid #ddd; 
+            margin-bottom: 20px; 
+        }
+
+        input { 
+            flex-grow: 1; 
+            padding: 12px; 
+            border: 1px solid var(--unam-azul); 
+            font-size: 16px; 
+        }
+        
+        button { 
+            background: var(--unam-azul); 
+            color: var(--unam-oro); 
+            border: 2px solid var(--unam-oro); 
+            padding: 10px 25px; 
+            cursor: pointer; 
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        #status { 
+            text-align: center; 
+            font-weight: bold; 
+            margin: 15px 0; 
+            color: #b91c1c; /* Rojo por defecto si hay error */
+        }
+        
+        /* TABLA ESTILO RETRO (Imagen 2) */
+        table { width: 100%; border-collapse: collapse; background: #d1d5db; display: none; }
+        th { background: #fef3c7; border: 1px solid #999; padding: 12px; font-size: 13px; color: black; }
+        td { border: 1px solid #999; padding: 10px; text-align: center; color: #b91c1c; font-weight: bold; font-size: 14px; }
+        tr:nth-child(even) { background: #c5cad3; }
+    </style>
+</head>
+<body>
+
+<!-- IMAGEN DE BANNER SIN MÁRGENES -->
+<div class="banner-contenedor">
+    <!-- Verifica que el nombre sea biblio.jpg exactamente -->
+    <img src="biblio.jpg" alt="Mural Biblioteca Central UNAM" onerror="this.src='https://via.placeholder.com/1200x300?text=Error+al+cargar+imagen+biblio.jpg'">
+</div>
+<!-- TÍTULO DEL SISTEMA -->
+<div class="header">SISTEMA DE CONSULTA DE ACERVO - UNAM</div>
+
+<div class="container">
+    <div class="search-box">
+        <input type="text" id="busqueda" placeholder="Buscar por título, autor o tema...">
+        <button onclick="buscar()">BUSCAR</button>
+    </div>
+
+    <div id="status">Conectando con la base de datos...</div>
+
+    <table id="tablaLibros">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>LIBRO / TÍTULO</th>
+                <th>AUTOR</th>
+                <th>AÑO</th>
+                <th>TOTAL</th>
+                <th>DISPONIBLES</th>
+            </tr>
+        </thead>
+        <tbody id="resultadoBody"></tbody>
+    </table>
+</div>
+
+<script>
+    // URL de tu Google Sheets (confirmada en imagen_3.png)
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxvn_OzvmwzYPuzfVCVgviDoVVMQkm75FwkiYPelVZkwh4sKMyFVevJsJXLuKNGCsZaDCM9V0WkK36/pub?output=csv';
+    let baseDeDatos = [];
+
+    async function cargarBiblioteca() {
+        const status = document.getElementById('status');
+        try {
+            const response = await fetch(csvUrl);
+            if (!response.ok) throw new Error();
+            const data = await response.text();
+            
+            const filas = data.split("\n").slice(1);
+            baseDeDatos = filas.map(f => {
+                const c = f.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                return { 
+                    id: (c[0] || "").replace(/"/g, "").trim(), 
+                    titulo: (c[1] || "").replace(/"/g, "").trim(), 
+                    autor: (c[2] || "").replace(/"/g, "").trim(), 
+                    anio: (c[3] || "").replace(/"/g, "").trim(), 
+                    total: (c[4] || "").replace(/"/g, "").trim(), 
+                    disp: (c[5] || "").replace(/"/g, "").trim() 
+                };
+            }).filter(l => l.titulo);
+
+            status.innerText = "✅ SISTEMA CONECTADO";
+            status.style.color = "green";
+        } catch (e) {
+            status.innerText = "❌ ERROR DE CONEXIÓN - VERIFICA GOOGLE SHEETS";
+        }
+    }
+
+    function buscar() {
+        const txt = document.getElementById('busqueda').value.toLowerCase().trim();
+        const tabla = document.getElementById('tablaLibros');
+        const cuerpo = document.getElementById('resultadoBody');
+        
+        if (baseDeDatos.length === 0) {
+            alert("La base de datos aún no ha cargado.");
+            return;
+        }
+
+        const filtrados = baseDeDatos.filter(l => 
+            l.titulo.toLowerCase().includes(txt) || 
+            l.autor.toLowerCase().includes(txt)
+        );
+
+        cuerpo.innerHTML = "";
+        if (filtrados.length > 0) {
+            tabla.style.display = "table";
+            filtrados.forEach(l => {
+                cuerpo.innerHTML += `<tr>
+                    <td>${l.id}</td>
+                    <td>${l.titulo}</td>
+                    <td>${l.autor}</td>
+                    <td>${l.anio}</td>
+                    <td>${l.total}</td>
+                    <td>${l.disp}</td>
+                </tr>`;
+            });
+        } else {
+            tabla.style.display = "none";
+            alert("No se encontraron resultados.");
+        }
+    }
+
+    window.onload = cargarBiblioteca;
+    document.getElementById("busqueda").addEventListener("keypress", (e) => { if(e.key === "Enter") buscar(); });
+</script>
+
+</body>
+</html>
