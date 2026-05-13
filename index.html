@@ -17,32 +17,37 @@
             background-color: #cbd5e0; 
             overflow-x: hidden;
         }
-.banner-contenedor {
-    width: 100vw;
-    height: 80px; /* <--- Cambia 120px por 80px para que sea una franja delgada */
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    border-bottom: 2px solid var(--unam-oro);
-}
 
-.banner-contenedor img {
-    width: 100%;
-    height: 100%; 
-    object-fit: cover; 
-    object-position: center 30%; /* <--- Ajusta este % para mover la imagen hacia arriba o abajo */
-    display: block;
-}
+        /* BANNER EXTRA DELGADO (MICRO-BANNER) */
+        .banner-contenedor {
+            width: 100%;
+            height: 45px; /* <--- Altura mínima para que no robe espacio visual */
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            border-bottom: 2px solid var(--unam-oro);
+            background-color: var(--unam-azul);
+        }
+
+        .banner-contenedor img {
+            width: 100%;
+            height: 100%; 
+            object-fit: cover; 
+            object-position: center 20%; /* Enfoca la parte superior del mural */
+            display: block;
+            opacity: 0.7; /* Lo hace más suave y elegante */
+        }
 
         .header { 
             background: var(--unam-azul); 
             color: var(--unam-oro); 
-            padding: 15px; /* Reducimos un poco el padding para que todo sea más compacto */
+            padding: 12px; 
             text-align: center; 
             border-bottom: 5px solid var(--unam-oro); 
-            font-size: 20px; 
+            font-size: 18px; 
             font-weight: bold;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .container { 
@@ -51,24 +56,57 @@
             background: white; 
             padding: 20px; 
             border: 1px solid #999; 
-            box-shadow: 10px 10px 0px rgba(0,0,0,0.1); 
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.1); 
         }
 
-        /* El resto del código se mantiene igual para que el buscador funcione */
-        .search-box { background: #f3f4f6; padding: 20px; display: flex; gap: 10px; border: 1px solid #ddd; margin-bottom: 20px; }
-        input { flex-grow: 1; padding: 12px; border: 1px solid var(--unam-azul); font-size: 16px; }
-        button { background: var(--unam-azul); color: var(--unam-oro); border: 2px solid var(--unam-oro); padding: 10px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
-        #status { text-align: center; font-weight: bold; margin: 15px 0; color: #b91c1c; }
-        table { width: 100%; border-collapse: collapse; background: #d1d5db; display: none; }
-        th { background: #fef3c7; border: 1px solid #999; padding: 12px; font-size: 13px; color: black; }
-        td { border: 1px solid #999; padding: 10px; text-align: center; color: #b91c1c; font-weight: bold; font-size: 14px; }
-        tr:nth-child(even) { background: #c5cad3; }
+        .search-box { 
+            background: #f3f4f6; 
+            padding: 15px; 
+            display: flex; 
+            gap: 10px; 
+            border: 1px solid #ddd; 
+            margin-bottom: 20px; 
+        }
+
+        input { 
+            flex-grow: 1; 
+            padding: 12px; 
+            border: 1px solid var(--unam-azul); 
+            font-size: 16px; 
+        }
+        
+        button { 
+            background: var(--unam-azul); 
+            color: var(--unam-oro); 
+            border: 2px solid var(--unam-oro); 
+            padding: 10px 20px; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #002a42;
+        }
+
+        #status { 
+            text-align: center; 
+            font-weight: bold; 
+            margin: 10px 0; 
+            font-size: 14px;
+        }
+        
+        table { width: 100%; border-collapse: collapse; background: #f9fafb; display: none; margin-top: 10px; }
+        th { background: #fef3c7; border: 1px solid #999; padding: 10px; font-size: 12px; color: #333; text-transform: uppercase; }
+        td { border: 1px solid #ccc; padding: 8px; text-align: center; color: #444; font-size: 13px; }
+        tr:nth-child(even) { background: #f3f4f6; }
     </style>
 </head>
 <body>
 
+<!-- Franja decorativa superior -->
 <div class="banner-contenedor">
-    <img src="biblio.jpg" alt="Mural Biblioteca Central UNAM" onerror="this.src='https://via.placeholder.com/1200x120?text=Error+en+archivo+biblio.jpg'">
+    <img src="biblio.jpg" alt="Detalle Mural UNAM" onerror="this.src='https://via.placeholder.com/1200x45?text=UNAM+ACERVO'">
 </div>
 
 <div class="header">SISTEMA DE CONSULTA DE ACERVO - UNAM</div>
@@ -79,17 +117,17 @@
         <button onclick="buscar()">BUSCAR</button>
     </div>
 
-    <div id="status">Conectando con la base de datos...</div>
+    <div id="status">⏳ Cargando base de datos...</div>
 
     <table id="tablaLibros">
         <thead>
             <tr>
                 <th>ID</th>
-                <th>LIBRO / TÍTULO</th>
+                <th>TÍTULO</th>
                 <th>AUTOR</th>
                 <th>AÑO</th>
                 <th>TOTAL</th>
-                <th>DISPONIBLES</th>
+                <th>DISP.</th>
             </tr>
         </thead>
         <tbody id="resultadoBody"></tbody>
@@ -97,7 +135,6 @@
 </div>
 
 <script>
-    // URL de tu Google Sheets (confirmada en imagen_3.png)
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxvn_OzvmwzYPuzfVCVgviDoVVMQkm75FwkiYPelVZkwh4sKMyFVevJsJXLuKNGCsZaDCM9V0WkK36/pub?output=csv';
     let baseDeDatos = [];
 
@@ -107,6 +144,7 @@
             const response = await fetch(csvUrl);
             if (!response.ok) throw new Error();
             const data = await response.text();
+            
             const filas = data.split("\n").slice(1);
             baseDeDatos = filas.map(f => {
                 const c = f.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
@@ -119,10 +157,12 @@
                     disp: (c[5] || "").replace(/"/g, "").trim() 
                 };
             }).filter(l => l.titulo);
-            status.innerText = "✅ SISTEMA CONECTADO";
+
+            status.innerText = "✅ CONECTADO AL ACERVO";
             status.style.color = "green";
         } catch (e) {
-            status.innerText = "❌ ERROR DE CONEXIÓN - VERIFICA GOOGLE SHEETS";
+            status.innerText = "❌ ERROR AL CARGAR DATOS";
+            status.style.color = "red";
         }
     }
 
@@ -130,19 +170,33 @@
         const txt = document.getElementById('busqueda').value.toLowerCase().trim();
         const tabla = document.getElementById('tablaLibros');
         const cuerpo = document.getElementById('resultadoBody');
-        if (baseDeDatos.length === 0) { alert("La base de datos aún no ha cargado."); return; }
-        const filtrados = baseDeDatos.filter(l => l.titulo.toLowerCase().includes(txt) || l.autor.toLowerCase().includes(txt));
+        
+        if (baseDeDatos.length === 0) return;
+
+        const filtrados = baseDeDatos.filter(l => 
+            l.titulo.toLowerCase().includes(txt) || 
+            l.autor.toLowerCase().includes(txt)
+        );
+
         cuerpo.innerHTML = "";
         if (filtrados.length > 0) {
             tabla.style.display = "table";
             filtrados.forEach(l => {
-                cuerpo.innerHTML += `<tr><td>${l.id}</td><td>${l.titulo}</td><td>${l.autor}</td><td>${l.anio}</td><td>${l.total}</td><td>${l.disp}</td></tr>`;
+                cuerpo.innerHTML += `<tr>
+                    <td>${l.id}</td>
+                    <td>${l.titulo}</td>
+                    <td>${l.autor}</td>
+                    <td>${l.anio}</td>
+                    <td>${l.total}</td>
+                    <td>${l.disp}</td>
+                </tr>`;
             });
         } else {
             tabla.style.display = "none";
             alert("No se encontraron resultados.");
         }
     }
+
     window.onload = cargarBiblioteca;
     document.getElementById("busqueda").addEventListener("keypress", (e) => { if(e.key === "Enter") buscar(); });
 </script>
