@@ -15,25 +15,26 @@
             padding: 0;
             font-family: 'Arial', sans-serif; 
             background-color: #cbd5e0; 
-            overflow-x: hidden; /* Evita que aparezca una barra de desplazamiento horizontal */
+            overflow-x: hidden;
         }
 
-        /* BANNER QUE OCUPA TODO EL ANCHO (Solución para imagen_3.jpg) */
+        /* BANNER AJUSTADO (Solución para imagen_4.jpg) */
         .banner-contenedor {
-            width: 100vw; /* 100% del ancho de la ventana */
-            height: auto;
+            width: 100vw;
+            height: 250px; /* Aquí controlas qué tan "mediano" es el banner */
             margin: 0;
             padding: 0;
-            line-height: 0; /* Elimina espacio extra debajo de la imagen */
+            overflow: hidden; /* Corta lo que sobresalga */
         }
 
         .banner-contenedor img {
-            width: 100%; /* Se estira para cubrir todo el contenedor */
-            height: auto;
+            width: 100%;
+            height: 100%; /* Obligamos a la imagen a llenar los 250px de alto */
+            object-fit: cover; /* Recorta la imagen para que no se deforme */
+            object-position: center; /* Centra el mural para que se vea lo más importante */
             display: block;
         }
 
-        /* TÍTULO AZUL */
         .header { 
             background: var(--unam-azul); 
             color: var(--unam-oro); 
@@ -84,10 +85,9 @@
             text-align: center; 
             font-weight: bold; 
             margin: 15px 0; 
-            color: #b91c1c; /* Rojo por defecto si hay error */
+            color: #b91c1c;
         }
         
-        /* TABLA ESTILO RETRO (Imagen 2) */
         table { width: 100%; border-collapse: collapse; background: #d1d5db; display: none; }
         th { background: #fef3c7; border: 1px solid #999; padding: 12px; font-size: 13px; color: black; }
         td { border: 1px solid #999; padding: 10px; text-align: center; color: #b91c1c; font-weight: bold; font-size: 14px; }
@@ -96,12 +96,10 @@
 </head>
 <body>
 
-<!-- IMAGEN DE BANNER SIN MÁRGENES -->
 <div class="banner-contenedor">
-    <!-- Verifica que el nombre sea biblio.jpg exactamente -->
-    <img src="biblio.jpg" alt="Mural Biblioteca Central UNAM" onerror="this.src='https://via.placeholder.com/1200x300?text=Error+al+cargar+imagen+biblio.jpg'">
+    <img src="biblio.jpg" alt="Mural Biblioteca Central UNAM" onerror="this.src='https://via.placeholder.com/1200x250?text=Error+en+archivo+biblio.jpg'">
 </div>
-<!-- TÍTULO DEL SISTEMA -->
+
 <div class="header">SISTEMA DE CONSULTA DE ACERVO - UNAM</div>
 
 <div class="container">
@@ -128,7 +126,6 @@
 </div>
 
 <script>
-    // URL de tu Google Sheets (confirmada en imagen_3.png)
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxvn_OzvmwzYPuzfVCVgviDoVVMQkm75FwkiYPelVZkwh4sKMyFVevJsJXLuKNGCsZaDCM9V0WkK36/pub?output=csv';
     let baseDeDatos = [];
 
