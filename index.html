@@ -17,24 +17,22 @@
             background-color: #cbd5e0; 
             overflow-x: hidden;
         }
+.banner-contenedor {
+    width: 100vw;
+    height: 80px; /* <--- Cambia 120px por 80px para que sea una franja delgada */
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border-bottom: 2px solid var(--unam-oro);
+}
 
-        /* BANNER MEDIANO/PEQUEÑO */
-        .banner-contenedor {
-            width: 100vw;
-            height: 120px; /* Cambia este número (ej. 100, 150, 180) hasta que te guste el tamaño */
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            border-bottom: 3px solid var(--unam-oro); /* Añadimos una línea dorada para que resalte */
-        }
-
-        .banner-contenedor img {
-            width: 100%;
-            height: 100%; 
-            object-fit: cover; 
-            object-position: center 20%; /* Ajusta el porcentaje para subir o bajar la "cámara" del mural */
-            display: block;
-        }
+.banner-contenedor img {
+    width: 100%;
+    height: 100%; 
+    object-fit: cover; 
+    object-position: center 30%; /* <--- Ajusta este % para mover la imagen hacia arriba o abajo */
+    display: block;
+}
 
         .header { 
             background: var(--unam-azul); 
