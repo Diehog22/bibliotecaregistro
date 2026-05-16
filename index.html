@@ -15,6 +15,77 @@
         
         body { margin: 0; font-family: 'Arial', sans-serif; background-color: #cbd5e0; }
 
+        /* --- ESTILOS DE LA PANTALLA DE LOGIN --- */
+        #login-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #1a202c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .login-box {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 350px;
+            width: 100%;
+            border-top: 5px solid var(--unam-azul);
+        }
+
+        .login-box h2 {
+            color: var(--unam-azul);
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .login-input {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .login-input:focus {
+            border-color: var(--unam-azul);
+            outline: none;
+        }
+
+        .btn-login {
+            background: var(--unam-azul);
+            color: var(--unam-oro);
+            border: none;
+            padding: 12px;
+            width: 96%;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .btn-login:hover {
+            background: #00273e;
+        }
+
+        #login-error {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        /* --- CONTENIDO PRINCIPAL (Oculto al inicio) --- */
+        #app-content {
+            display: none;
+        }
+
         .header { 
             background: var(--unam-azul); 
             color: var(--unam-oro); 
@@ -110,68 +181,75 @@
 </head>
 <body>
 
-<div class="header">SISTEMA DE CONSULTA Y GESTIÓN DE PRÉSTAMOS - UNAM</div>
-
-<div class="container">
-    
-    <div class="tabs-container">
-        <button id="btnL" class="tab-btn active" onclick="cambiarVista('libros')">📚 CONSULTAR LIBROS</button>
-        <button id="btnA" class="tab-btn" onclick="cambiarVista('alumnos')">🎓 CONSULTAR ALUMNOS</button>
-        <button id="btnP" class="tab-btn" onclick="cambiarVista('prestamo')">✍️ REGISTRAR PRÉSTAMO</button>
+<div id="login-overlay">
+    <div class="login-box">
+        <h2>📚 Biblioteca UNAM <br><span style="font-size:14px; color:#555;">Control de Acceso</span></h2>
+        <input type="text" id="username" class="login-input" placeholder="Usuario">
+        <input type="password" id="password" class="login-input" placeholder="Contraseña">
+        <button class="btn-login" onclick="validarAcceso()">INGRESAR</button>
+        <div id="login-error">❌ Credenciales incorrectas</div>
     </div>
+</div>
 
-    <!-- Buscador General (oculto en pestaña préstamo) -->
-    <div class="search-box" id="caja-busqueda">
-        <input type="text" id="busqueda" placeholder="Buscar por nombre o ID...">
-        <button class="btn-buscar" onclick="buscar()">BUSCAR</button>
-    </div>
+<div id="app-content">
+    <div class="header">SISTEMA DE CONSULTA Y GESTIÓN DE PRÉSTAMOS - UNAM</div>
 
-    <div id="status">✅ CONECTADO AL ACERVO</div>
+    <div class="container">
+        <div class="tabs-container">
+            <button id="btnL" class="tab-btn active" onclick="cambiarVista('libros')">📚 CONSULTAR LIBROS</button>
+            <button id="btnA" class="tab-btn" onclick="cambiarVista('alumnos')">🎓 CONSULTAR ALUMNOS</button>
+            <button id="btnP" class="tab-btn" onclick="cambiarVista('prestamo')">✍️ REGISTRAR PRÉSTAMO</button>
+        </div>
 
-    <!-- TABLA LIBROS -->
-    <div id="vista-libros" class="view-content active">
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th><th>LIBRO</th><th>AUTOR</th><th>AÑO</th><th>TOTALES</th><th>DISPONIBLES</th>
-                </tr>
-            </thead>
-            <tbody id="resLibros"></tbody>
-        </table>
-    </div>
+        <div class="search-box" id="caja-busqueda">
+            <input type="text" id="busqueda" placeholder="Buscar por nombre o ID...">
+            <button class="btn-buscar" onclick="buscar()">BUSCAR</button>
+        </div>
 
-    <!-- TABLA ALUMNOS -->
-    <div id="vista-alumnos" class="view-content">
-        <table>
-            <thead>
-                <tr>
-                    <th>ID-ESTUDIANTE</th><th>NOMBRE</th><th>RECARGOS</th><th>LIBROS PRESTADOS</th>
-                </tr>
-            </thead>
-            <tbody id="resAlumnos"></tbody>
-        </table>
-    </div>
+        <div id="status">✅ CONECTADO AL ACERVO</div>
 
-    <!-- FORMULARIO PRÉSTAMO -->
-    <div id="vista-prestamo" class="view-content">
-        <div class="form-prestamo">
-            <h2 style="color: var(--unam-azul)">NUEVA SOLICITUD DE PRÉSTAMO</h2>
-            <div class="form-group">
-                <label>Seleccionar Estudiante:</label>
-                <select id="select-alumno"></select>
+        <div id="vista-libros" class="view-content active">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th><th>LIBRO</th><th>AUTOR</th><th>AÑO</th><th>TOTALES</th><th>DISPONIBLES</th>
+                    </tr>
+                </thead>
+                <tbody id="resLibros"></tbody>
+            </table>
+        </div>
+
+        <div id="vista-alumnos" class="view-content">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID-ESTUDIANTE</th><th>NOMBRE</th><th>RECARGOS</th><th>LIBROS PRESTADOS</th>
+                    </tr>
+                </thead>
+                <tbody id="resAlumnos"></tbody>
+            </table>
+        </div>
+
+        <div id="vista-prestamo" class="view-content">
+            <div class="form-prestamo">
+                <h2 style="color: var(--unam-azul)">NUEVA SOLICITUD DE PRÉSTAMO</h2>
+                <div class="form-group">
+                    <label>Seleccionar Estudiante:</label>
+                    <select id="select-alumno"></select>
+                </div>
+                <div class="form-group">
+                    <label>Seleccionar Libro:</label>
+                    <select id="select-libro"></select>
+                </div>
+                <p id="info-fecha">📅 Fecha de entrega: <strong>20 de mayo de 2026</strong></p>
+                <button class="btn-accion" onclick="ejecutarPrestamo()">CONFIRMAR PRÉSTAMO Y ACTUALIZAR HOJAS</button>
             </div>
-            <div class="form-group">
-                <label>Seleccionar Libro:</label>
-                <select id="select-libro"></select>
-            </div>
-            <p id="info-fecha">📅 Fecha de entrega: <strong>20 de mayo de 2026</strong></p>
-            <button class="btn-accion" onclick="ejecutarPrestamo()">CONFIRMAR PRÉSTAMO Y ACTUALIZAR HOJAS</button>
         </div>
     </div>
 </div>
 
 <script>
-    // URL de tu Apps Script (Deberás reemplazarla por la URL de despliegue que generes)
+    // URL de tu Apps Script
     const scriptURL = 'https://script.google.com/macros/s/TU_SCRIPT_ID/exec';
     
     const urlL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxvn_OzvmwzYPuzfVCVgviDoVVMQkm75FwkiYPelVZkwh4sKMyFVevJsJXLuKNGCsZaDCM9V0WkK36/pub?output=csv';
@@ -179,6 +257,28 @@
 
     let baseL = [];
     let baseA = [];
+
+    // --- FUNCIÓN DE VALIDACIÓN DE CREDENCIALES ---
+    function validarAcceso() {
+        const userIn = document.getElementById('username').value;
+        const passIn = document.getElementById('password').value;
+        const errorMsg = document.getElementById('login-error');
+
+        if (userIn === "diego22" && passIn === "SpaceGh0st") {
+            // Ocultar pantalla de login y mostrar la app
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+            // Iniciar la carga de datos de Google Sheets
+            cargar();
+        } else {
+            errorMsg.style.display = 'block';
+        }
+    }
+
+    // Permitir ingresar presionando la tecla "Enter"
+    document.getElementById('password').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') validarAcceso();
+    });
 
     async function cargar() {
         const [rL, rA] = await Promise.all([fetch(urlL), fetch(urlA)]);
@@ -237,20 +337,19 @@
                 fechaEntrega: "20 de mayo de 2026"
             };
 
-            // Simulación de envío (Requiere que configures el Apps Script con doPost)
             console.log("Enviando datos:", data);
             
             // fetch(scriptURL, { method: 'POST', body: JSON.stringify(data) });
 
             alert("Préstamo registrado. La disponibilidad se restará y la fecha de entrega se asignó al alumno.");
             document.getElementById('status').innerText = "✅ PRÉSTAMO COMPLETADO";
-            cargar(); // Recargar datos para ver reflejado el cambio
+            cargar(); 
         } catch (e) {
             alert("Error al conectar con la base de datos.");
         }
     }
 
-    window.onload = cargar;
+    // Eliminamos 'window.onload = cargar' para que no descargue datos de Sheets antes de loguearse.
 </script>
 </body>
 </html>
